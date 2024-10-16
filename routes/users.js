@@ -29,8 +29,8 @@ router.post("/signup", (req, res) => {
     return;
   }
 
-  User.findOne({ eamil: req.body.email }).then((data) => {
-    if (data) {
+  User.findOne({ email: req.body.email }).then((data) => {
+    if (data !== null) {
       res.json({ result: false, error: "L'email existe deja" });
       return;
     } else {
@@ -38,7 +38,8 @@ router.post("/signup", (req, res) => {
       const newUser = new User({
         pseudo: req.body.pseudo,
         email: req.body.email,
-        password: req.body.password,
+        password: hash,
+        token: uid2(32),
       });
       newUser
         .save()
@@ -48,6 +49,25 @@ router.post("/signup", (req, res) => {
         .catch((error) => {
           res.status(500).json({ result: false, message: "Erreur serveur" });
         });
+    }
+  });
+});
+
+router.post("/signin", (req, res) => {
+  if (!checkBody(req.body, ["email", "password"])) {
+    res.json({ result: false, error: "Tous les champs ne sont pas remplis" });
+    return;
+  }
+
+  User.findOne({ email: req.body.email }).then((data) => {
+    if (data === null) {
+      res.json({ result: false, error: "Aucun utilisateur n'existe" });
+    } else {
+      if (bcrypt.compareSync(req.body.password, data.password)) {
+        res.json({ result: true, user: data });
+      } else {
+        res.json({ result: false, error: "Password incorrect" });
+      }
     }
   });
 });
