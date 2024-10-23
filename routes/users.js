@@ -28,6 +28,7 @@ router.post("/signup", (req, res) => {
     return;
   }
 
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!emailRegex.test(req.body.email)) {
@@ -47,6 +48,7 @@ router.post("/signup", (req, res) => {
         password: hash,
         token: uid2(32),
         favorites: [],
+
       });
       newUser
         .save()
