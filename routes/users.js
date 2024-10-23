@@ -79,4 +79,64 @@ router.post("/signin", (req, res) => {
   });
 });
 
+router.post("/favorites", (req, res) => {
+  if (!checkBody(req.body, ["email", "recipeId"])) {
+    res.json({ result: false, error: "Tous les champs ne sont pas remplis" });
+    return;
+  }
+
+  User.findOne({ email: req.body.email })
+    .then((userData) => {
+      if (!userData) {
+        res.json({ result: false, error: "No user exists" });
+      } else {
+        const isFavorite = userData.favorites.includes(req.body.recipeId);
+        if (isFavorite) {
+          User.updateOne(
+            { email: req.body.email },
+            { $pull: { favorites: req.body.recipeId } }
+          )
+            .then((data) => {
+              res.json({
+                result: true,
+                message: "Recipe removed from favorites",
+                userFavorites: data,
+              });
+            })
+            .catch((error) => {
+              console.error("Error removing recipe from favorites:", error);
+              res.status(500).json({
+                result: false,
+                error: "Erreur serveur in Pulling recipe",
+                isFavorite,
+              });
+            });
+        } else {
+          User.updateOne(
+            { email: req.body.email },
+            { $push: { favorites: req.body.recipeId } }
+          )
+            .then((updatedData) => {
+              res.json({
+                result: true,
+                message: "Recipe added to favorites",
+                updatedData,
+              });
+            })
+            .catch((error) => {
+              console.error("Error adding recipe to favorites:", error);
+              res.status(500).json({
+                result: false,
+                error: "Erreur serveur in Pushing recipe",
+                isFavorite,
+              });
+            });
+        }
+      }
+    })
+    .catch((error) => {
+      console.error("Error finding user:", error);
+      res.status(500).json({ result: false, error: "Error serveur" });
+    });
+});
 module.exports = router;
