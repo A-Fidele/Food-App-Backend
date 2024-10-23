@@ -4,19 +4,19 @@ var router = express.Router();
 const { checkBody } = require("../modules/checkBody");
 require("../models/connection");
 
-router.get("/", (req, res) => {
-  Recipe.find()
-    .then((data) => {
-      if (data) {
-        res.json({ result: true, recipes: data });
-      } else {
-        res.json({ result: false, message: "No recipes found" });
-      }
-    })
-    .catch((error) => {
-      console.error("Error in fectching recipes", error);
-      res.status(500).json({ result: false, error: "Erreur serveur" });
-    });
+router.get("/", async (req, res) => {
+  try {
+    const recipes = await Recipe.find();
+
+    if (recipes.length > 0) {
+      res.json({ result: true, recipes });
+    } else {
+      res.status(404).json({ result: false, message: "No recipes found" });
+    }
+  } catch (error) {
+    console.error("Error fetching recipes:", error);
+    res.status(500).json({ result: false, error: "Internal server error" });
+  }
 });
 
 router.post("/insert", (req, res) => {

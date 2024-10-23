@@ -7,6 +7,7 @@ var logger = require("morgan");
 
 var recipesRouter = require("./routes/recipes");
 var usersRouter = require("./routes/users");
+var uploadRouter = require("./routes/upload");
 
 var app = express();
 const cors = require("cors");
@@ -20,5 +21,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/recipes", recipesRouter);
 app.use("/users", usersRouter);
+app.use("/upload", uploadRouter);
 
 module.exports = app;

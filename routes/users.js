@@ -7,7 +7,6 @@ const bcrypt = require("bcrypt");
 const User = require("../models/users");
 require("../models/connection");
 
-/* GET users listing. */
 router.get("/", (req, res) => {
   User.find()
     .then((data) => {
@@ -24,8 +23,16 @@ router.get("/", (req, res) => {
 });
 
 router.post("/signup", (req, res) => {
-  if (!checkBody(req.body, ["pseudo", "email", "password"])) {
+  if (!checkBody(req.body, ["email", "password"])) {
     res.json({ result: false, error: "Tous les champs ne sont pas remplis" });
+    return;
+  }
+
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(req.body.email)) {
+    res.json({ result: false, error: "L'adresse mail n'est pas valide" });
     return;
   }
 
@@ -40,6 +47,8 @@ router.post("/signup", (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),
+        favorites: [],
+
       });
       newUser
         .save()
@@ -63,7 +72,6 @@ router.post("/signin", (req, res) => {
     if (data === null) {
       res.json({ result: false, error: "Aucun utilisateur n'existe" });
     } else {
-      console.log("DATA signin", data);
       if (bcrypt.compareSync(req.body.password, data.password)) {
         res.json({ result: true, user: data });
       } else {
