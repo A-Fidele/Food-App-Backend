@@ -5,6 +5,7 @@ const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
 const User = require("../models/users");
+const Recipe = require("../models/recipes");
 require("../models/connection");
 
 router.get("/", (req, res) => {
@@ -139,6 +140,37 @@ router.post("/updateFavorites", (req, res) => {
       console.error("Error finding user:", error);
       res.status(500).json({ result: false, error: "Error serveur" });
     });
+});
+
+//print favorites
+router.post("/favorites", (req, res) => {
+  if (!checkBody(req.body, ["email"])) {
+    res.json({ result: false, error: "Tous les champs ne sont pas remplis" });
+    return;
+  }
+
+  User.findOne({ email: req.body.email }).then((userData) => {
+    if (!userData) {
+      res.json({ result: false, error: "No userfound" });
+      return;
+    } else {
+      //console.log("user found", userData);
+
+      const promises = userData.favorites.map((favoriteRecipes) => {
+        Recipe.findOne({ _id: favoriteRecipes });
+      });
+
+      Promise.all(promises).then((recipes) => {
+        const foundRecipes = recipes.filter((recipe) => recipe !== null);
+        console.log("foundRecipes length: ", foundRecipes.length);
+        if (foundRecipes.length > 0) {
+          res.json({ result: true, favorite: foundRecipes });
+        } else {
+          res.json({ result: false, error: "No match found" });
+        }
+      });
+    }
+  });
 });
 
 module.exports = router;
