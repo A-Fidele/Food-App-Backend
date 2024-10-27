@@ -79,7 +79,8 @@ router.post("/signin", (req, res) => {
   });
 });
 
-router.post("/favorites", (req, res) => {
+//update favorites
+router.post("/updateFavorites", (req, res) => {
   if (!checkBody(req.body, ["email", "recipeId"])) {
     res.json({ result: false, error: "Tous les champs ne sont pas remplis" });
     return;
@@ -139,4 +140,5 @@ router.post("/favorites", (req, res) => {
       res.status(500).json({ result: false, error: "Error serveur" });
     });
 });
+
 module.exports = router;

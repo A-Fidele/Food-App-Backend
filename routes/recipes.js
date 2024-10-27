@@ -19,6 +19,25 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.post("/recipeById", async (req, res) => {
+  if (!checkBody(req.body, ["id"])) {
+    res.json({ result: false, error: "Tous les champs ne sont pas remplis!" });
+    return;
+  }
+  try {
+    Recipe.findOne({ _id: req.body.id }).then((recipeFound) => {
+      if (!recipeFound) {
+        res.json({ result: false, error: "No recipe found" });
+      } else {
+        res.json({ result: true, recipe: recipeFound });
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching recipes:", error);
+    res.status(500).json({ result: false, error: "Internal server error" });
+  }
+});
+
 router.post("/insert", (req, res) => {
   if (
     !checkBody(req.body, [

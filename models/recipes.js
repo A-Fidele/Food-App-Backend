@@ -7,7 +7,7 @@ const ingredientSchema = mongoose.Schema({
 });
 
 const recipeSchema = mongoose.Schema({
-  id: Number,
+  id: String,
   name: String,
   desc: String,
   image: String,
