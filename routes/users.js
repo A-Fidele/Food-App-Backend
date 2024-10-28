@@ -143,6 +143,9 @@ router.post("/updateFavorites", (req, res) => {
 });
 
 //print favorites
+//Recipe.findOne est asynchrone, la réponse res.json est envoyée avant que toutes les requêtes asynchrones soient terminées.
+//Pour résoudre ce problème, utilise Promise.all pour attendre la résolution de toutes les promesses dans userData.favorites avant d’envoyer la réponse finale
+
 router.post("/favorites", (req, res) => {
   if (!checkBody(req.body, ["email"])) {
     res.json({ result: false, error: "Tous les champs ne sont pas remplis" });
@@ -155,16 +158,19 @@ router.post("/favorites", (req, res) => {
       return;
     } else {
       //console.log("user found", userData);
-
-      const promises = userData.favorites.map((favoriteRecipes) => {
-        Recipe.findOne({ _id: favoriteRecipes });
+      const promises = userData.favorites.map((favoriteRecipesId) => {
+        return Recipe.findOne({ _id: favoriteRecipesId });
       });
 
       Promise.all(promises).then((recipes) => {
         const foundRecipes = recipes.filter((recipe) => recipe !== null);
         console.log("foundRecipes length: ", foundRecipes.length);
+        foundRecipes.forEach((data) => {
+          console.log("foundRecipes", data);
+        });
+
         if (foundRecipes.length > 0) {
-          res.json({ result: true, favorite: foundRecipes });
+          res.json({ result: true, favorites: foundRecipes });
         } else {
           res.json({ result: false, error: "No match found" });
         }

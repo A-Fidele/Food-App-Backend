@@ -2,6 +2,7 @@ var express = require("express");
 const Recipe = require("../models/recipes");
 var router = express.Router();
 const { checkBody } = require("../modules/checkBody");
+const User = require("../models/users");
 require("../models/connection");
 
 router.get("/", async (req, res) => {
@@ -19,8 +20,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/recipeById", async (req, res) => {
-  if (!checkBody(req.body, ["id"])) {
+router.post("/findRecipeById", async (req, res) => {
+  if (!checkBody(req.body, ["id", "email"])) {
     res.json({ result: false, error: "Tous les champs ne sont pas remplis!" });
     return;
   }
@@ -29,7 +30,24 @@ router.post("/recipeById", async (req, res) => {
       if (!recipeFound) {
         res.json({ result: false, error: "No recipe found" });
       } else {
-        res.json({ result: true, recipe: recipeFound });
+        User.findOne({ email: req.body.email }).then((userFound) => {
+          if (userFound) {
+            console.log(
+              "userFound.favorites: ",
+              userFound.favorites,
+              "recipeFound:",
+              recipeFound._id
+            );
+            const isFavoriteFound = userFound.favorites.includes(
+              recipeFound._id
+            );
+            res.json({
+              result: true,
+              recipe: recipeFound,
+              isFavorite: isFavoriteFound,
+            });
+          }
+        });
       }
     });
   } catch (error) {
