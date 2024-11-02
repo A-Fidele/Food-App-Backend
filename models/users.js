@@ -5,7 +5,7 @@ const userSchema = mongoose.Schema({
   email: String,
   password: String,
   token: String,
-  favorites: [],
+  favorites: { type: [String], default: [] },
 });
 
 const User = mongoose.model("users", userSchema);
