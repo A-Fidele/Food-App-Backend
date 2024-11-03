@@ -5,6 +5,7 @@ const { checkBody } = require("../modules/checkBody");
 const User = require("../models/users");
 require("../models/connection");
 
+//print recipe
 router.get("/", async (req, res) => {
   try {
     const recipes = await Recipe.find();
@@ -20,6 +21,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+//find recipe by Id
 router.post("/findRecipeById", async (req, res) => {
   if (!checkBody(req.body, ["id", "email"])) {
     res.json({ result: false, error: "Tous les champs ne sont pas remplis!" });
@@ -56,6 +58,7 @@ router.post("/findRecipeById", async (req, res) => {
   }
 });
 
+//insert new recipe
 router.post("/insert", (req, res) => {
   if (
     !checkBody(req.body, [

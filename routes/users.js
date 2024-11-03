@@ -8,6 +8,7 @@ const User = require("../models/users");
 const Recipe = require("../models/recipes");
 require("../models/connection");
 
+//print user
 router.get("/", (req, res) => {
   User.find()
     .then((data) => {
@@ -23,6 +24,7 @@ router.get("/", (req, res) => {
     });
 });
 
+//signup
 router.post("/signup", (req, res) => {
   if (!checkBody(req.body, ["email", "password"])) {
     res.json({ result: false, error: "Tous les champs ne sont pas remplis" });
@@ -63,6 +65,7 @@ router.post("/signup", (req, res) => {
   });
 });
 
+//signin
 router.post("/signin", (req, res) => {
   if (!checkBody(req.body, ["email", "password"])) {
     res.json({ result: false, error: "Tous les champs ne sont pas remplis" });
@@ -142,6 +145,32 @@ router.post("/updateFavorites", (req, res) => {
       console.error("Error finding user:", error);
       res.status(500).json({ result: false, error: "Error serveur" });
     });
+});
+
+//update serving
+router.post("/updateServing", async (req, res) => {
+  if (!checkBody(req.body, ["id", "servingNb"])) {
+    res.json({ result: false, error: "Verify all fields" });
+    return;
+  }
+
+  try {
+    const recipeFound = await Recipe.findOne({ _id: req.body.id });
+    if (recipeFound) {
+      await Recipe.updateOne(
+        { _id: req.body.id },
+        { $set: { servingNb: req.body.servingNb } }
+      );
+
+      // Mise à jour réussie, renvoyer la valeur modifiée de servingNb
+      res.json({ result: true, recipe_servingNb: recipeFound });
+    } else {
+      res.json({ result: false, error: "No recipe found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ result: false, error: "Server error" });
+  }
 });
 
 //print favorites
