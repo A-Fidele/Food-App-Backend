@@ -155,15 +155,13 @@ router.post("/updateServing", async (req, res) => {
   }
 
   try {
-    const recipeFound = await Recipe.findOne({ _id: req.body.id });
-    if (recipeFound) {
-      await Recipe.updateOne(
-        { _id: req.body.id },
-        { $set: { servingNb: req.body.servingNb } }
-      );
-
-      // Mise à jour réussie, renvoyer la valeur modifiée de servingNb
-      res.json({ result: true, recipe_servingNb: recipeFound });
+    const updatedRecipe = await Recipe.findOneAndUpdate(
+      { _id: req.body.id },
+      { servingNb: req.body.servingNb },
+      { new: true } // Cette option renvoie le document mis à jour
+    );
+    if (updatedRecipe) {
+      res.json({ result: true, recipe: updatedRecipe });
     } else {
       res.json({ result: false, error: "No recipe found" });
     }
